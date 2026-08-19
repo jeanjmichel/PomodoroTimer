@@ -209,3 +209,19 @@ Domain
 
 ```ts
 interface TaskRepository {}
+```
+
+# Documentation Requirements
+
+If CHANGELOG.md does not exist, create it.
+
+Every implementation must update CHANGELOG.md using the Keep a Changelog format.
+
+At minimum include:
+
+- Added
+- Changed
+- Fixed
+- Removed
+
+Entries should be concise and describe observable behavior.

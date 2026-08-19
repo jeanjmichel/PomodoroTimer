@@ -57,7 +57,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Build the timer settings form and preset duration controls in components/timer/TimerSettingsForm.tsx
+- [ ] T015 [P] [US1] Build the timer settings form in components/timer/TimerSettingsForm.tsx including the predefined focus durations:
+  - 3 minutes
+  - 5 minutes
+  - 10 minutes
+  - 15 minutes
+  - 20 minutes
+  - 25 minutes
+  - 30 minutes
+  - 45 minutes
+  - 55 minutes
+  and support custom durations in minutes and seconds.
 - [ ] T016 [P] [US1] Build the countdown display in components/timer/TimerDisplay.tsx
 - [ ] T017 [US1] Add the main timer dashboard composition in components/timer/TimerDashboard.tsx
 - [ ] T018 [US1] Implement start and configuration behavior in app/page.tsx and/or the timer hook integration
@@ -80,7 +90,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement phase-shift logic when the timer reaches zero in domain/timer/timer-rules.ts and domain/timer/timer-service.ts
+- [ ] T022 [US2] Implement phase-shift logic when the timer reaches zero in domain/timer/timer-rules.ts and domain/timer/timer-service.ts, automatically transitioning from focus mode to a fixed 5-minute rest period.
 - [ ] T023 [US2] Add loop-mode support and restart behavior to the timer service in domain/timer/timer-service.ts
 - [ ] T024 [US2] Wire loop-mode controls into the UI in components/timer/TimerControls.tsx
 - [ ] T025 [US2] Show the active phase and cycle state in the dashboard and timer display components
