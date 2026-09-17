@@ -7,14 +7,13 @@
 Represents the user-selected configuration for a timer cycle.
 
 - `focusDurationSeconds: number`
-- `restDurationSeconds: number`
 - `autoRepeat: boolean`
 - `customDurationMinutes: number | null`
 - `customDurationSeconds: number | null`
 
 **Validation rules**
 - Focus duration must be greater than zero.
-- Rest duration must be greater than zero.
+- The rest duration is fixed at 5 minutes by the system and is not user-configurable.
 - Custom duration values must be within the supported range for the app.
 - Invalid combinations should be rejected before the timer is started.
 

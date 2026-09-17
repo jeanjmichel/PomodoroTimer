@@ -32,4 +32,5 @@
 ## Notes
 
 - All checklist items pass for the current draft.
-- The specification is ready to proceed to clarification or planning if required.
+- The specification now explicitly enforces the fixed 5-minute rest period and prohibits any rest-duration configuration control.
+- The specification is ready to proceed to planning without additional clarification.

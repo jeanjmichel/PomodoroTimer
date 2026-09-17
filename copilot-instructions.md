@@ -225,3 +225,18 @@ At minimum include:
 - Removed
 
 Entries should be concise and describe observable behavior.
+
+## Documentation Completion Rules
+
+No implementation is considered complete until:
+
+- CHANGELOG.md has been updated.
+- README.md reflects the current solution.
+- Architecture changes are documented.
+- New dependencies are documented.
+- New environment variables are documented.
+
+If CHANGELOG.md does not exist, create it.
+If README.md does not exist, create it.
+
+Documentation updates must be included in implementation tasks whenever user-visible or developer-relevant behavior changes.

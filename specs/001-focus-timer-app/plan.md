@@ -8,7 +8,7 @@
 
 ## Summary
 
-Build a responsive single-page productivity timer that supports focus and rest cycles, preset and custom durations, lifecycle controls, automatic loop mode, and visual/audio notifications without introducing unnecessary application complexity. The solution will separate timer rules from the UI so that the domain logic remains explicit, testable, and easy to reason about.
+Build a responsive single-page productivity timer that supports focus sessions with a fixed 5-minute rest period, preset and custom focus durations, lifecycle controls, automatic loop mode, and visual/audio notifications without introducing unnecessary application complexity. The solution will separate timer rules from the UI so that the domain logic remains explicit, testable, and easy to reason about.
 
 ## Technical Context
 
@@ -26,9 +26,9 @@ Build a responsive single-page productivity timer that supports focus and rest c
 
 **Performance Goals**: Timer updates remain accurate to within one second; transitions feel immediate and responsive on common desktop and mobile devices.
 
-**Constraints**: No authentication; no database; browser audio support is optional but fallback visual notifications are required; delays must remain low and predictable.
+**Constraints**: No authentication; no database; browser audio support is optional but fallback visual notifications are required; delays must remain low and predictable; the rest period is a fixed 5-minute system rule and cannot be configured or exposed in the interface.
 
-**Scale/Scope**: Single-user demo application with one main timer screen and a limited set of interactions.
+**Scale/Scope**: Single-user demo application with one main timer screen and a limited set of interactions centered on focus sessions and the non-configurable 5-minute rest cycle.
 
 ## Constitution Check
 
@@ -125,8 +125,9 @@ No complexity exceptions are required for this version. The feature remains a fo
 
 - Confirm the simplest timer model for a browser-based countdown with pause/resume and loop transitions.
 - Decide how to handle browser audio notifications without unnecessary user friction.
-- Validate the best fit for custom duration input handling with Zod and minimal UI overhead.
+- Validate the best fit for custom focus duration input handling with Zod and minimal UI overhead.
 - Confirm the appropriate state model for focus/rest cycles and reset behavior.
+- Confirm enforcement of a fixed 5-minute rest period without exposing any rest-duration configuration controls.
 
 ### Decisions
 
@@ -138,9 +139,9 @@ No complexity exceptions are required for this version. The feature remains a fo
 - Rationale: The product requires both visual and audible notifications while remaining dependable across device/browser capabilities.
 - Alternatives considered: Server-driven push notifications; rejected because the app is a local browser-first timer and the feature does not require backend infrastructure.
 
-- Decision: Validate custom durations with Zod at the app boundary and then pass normalized values to the domain service.
-- Rationale: This enforces safe defaults and prevents invalid values from entering timer logic.
-- Alternatives considered: Direct parse logic in UI; rejected because it couples validation to presentation and is harder to test in isolation.
+- Decision: Validate custom focus durations with Zod at the app boundary and then pass normalized values to the domain service while keeping the rest duration fixed at 5 minutes as a system constant.
+- Rationale: This enforces safe defaults for focus sessions while preventing any UI or settings path from exposing rest-duration configuration, which would violate the fixed-cycle requirement.
+- Alternatives considered: Direct parse logic in UI or a user-configurable rest duration; rejected because both would couple rule-breaking behavior to the interface and make validation harder to reason about.
 
 ## Phase 1: Design & Contracts
 
@@ -150,9 +151,8 @@ The timer domain model will capture the current configuration and runtime state.
 
 - TimerSettings
   - focusDurationSeconds: number
-  - restDurationSeconds: number
   - autoRepeat: boolean
-  - customFocusMinutes: number | null
+  - fixedRestDurationSeconds: 300 (system constant, not user-editable)
 
 - TimerState
   - phase: 'focus' | 'rest'
@@ -160,6 +160,7 @@ The timer domain model will capture the current configuration and runtime state.
   - remainingSeconds: number
   - totalSeconds: number
   - isLoopEnabled: boolean
+  - fixedRestDurationSeconds: number
 
 - NotificationEvent
   - type: 'focus-complete' | 'rest-complete' | 'session-stopped' | 'session-reset'
@@ -171,9 +172,10 @@ The timer domain model will capture the current configuration and runtime state.
 
 ### Domain Rules
 
-- Focus and rest durations MUST be positive and within the allowed range.
-- A custom duration can be specified in minutes and seconds but must be normalized before execution.
-- When the countdown reaches zero, the timer transitions to the next phase if loop mode is enabled.
+- Focus durations MUST be positive and within the allowed range.
+- The rest duration is a fixed system value of 5 minutes and MUST NOT be user-configurable.
+- A custom focus duration can be specified in minutes and seconds but must be normalized before execution.
+- When the countdown reaches zero, the timer transitions to the fixed 5-minute rest phase if loop mode is enabled.
 - If loop mode is disabled, the timer ends in the current phase and requires explicit user action to restart.
 - Pause, resume, stop, and restart are modeled as explicit state transitions rather than side effects inside UI components.
 
@@ -181,22 +183,22 @@ The timer domain model will capture the current configuration and runtime state.
 
 A minimal state contract will be defined for the timer and notification layer:
 
-- `TimerSettingsInput`: validated before state creation.
-- `TimerStateSnapshot`: exported from domain logic for UI rendering.
+- `TimerSettingsInput`: validated before state creation for focus duration and loop settings only.
+- `TimerStateSnapshot`: exported from domain logic for UI rendering, including the fixed 5-minute rest cycle.
 - `NotificationTrigger`: a thin message passed to the browser notification layer.
 
-This contract is intentionally lightweight because the app does not expose backend APIs.
+This contract is intentionally lightweight because the app does not expose backend APIs, and the rest duration remains a fixed internal constraint rather than a user-editable contract field.
 
 ### Quickstart Validation Guide
 
 1. Install dependencies with the project package manager.
 2. Start the Next.js app in development mode.
 3. Open the app in a desktop browser and a mobile browser emulator.
-4. Choose a preset focus duration, start the timer, and confirm the countdown begins.
+4. Choose a preset focus duration or enter a custom focus duration in minutes and seconds, then start the timer to confirm the countdown begins.
 5. Pause and resume the timer to confirm lifecycle control works.
-6. Confirm the timer switches to rest mode and triggers a notification when the focus period ends.
+6. Confirm the timer switches to a fixed 5-minute rest mode and triggers a notification when the focus period ends.
 7. Enable loop mode and confirm the app continues through multiple focus/rest transitions without extra interaction.
-8. Enter a custom duration in minutes and seconds and confirm the validation logic accepts valid values and rejects invalid ones.
+8. Verify the interface does not expose any field or control for rest-duration configuration.
 9. Stop and restart the timer to confirm reset behavior is consistent and user-visible.
 
 ## Testing Strategy
@@ -207,9 +209,10 @@ This contract is intentionally lightweight because the app does not expose backe
 
 ### Test Cases
 
-- Valid custom duration is accepted when within the supported range.
-- Invalid custom duration is rejected with a descriptive error.
-- Running timer transitions from focus to rest at zero.
+- Valid custom focus duration is accepted when within the supported range.
+- Invalid custom focus duration is rejected with a descriptive error.
+- Running timer transitions from focus to a fixed 5-minute rest period at zero.
+- Rest-duration controls are absent from the UI and the rest period remains fixed at 300 seconds.
 - Pause stops time advances and resume continues from the current remaining duration.
 - Stop resets the timer to the initial state.
 - Loop mode keeps cycling while auto-repeat is enabled.
@@ -223,11 +226,11 @@ This contract is intentionally lightweight because the app does not expose backe
 
 ## Implementation Sequence
 
-1. Create the timer domain model and validation utilities.
-2. Add the service layer that owns state transitions and phase logic.
-3. Build the React UI for settings, display, and controls.
+1. Create the timer domain model and validation utilities, enforcing a fixed 5-minute rest duration as a system constant.
+2. Add the service layer that owns state transitions and phase logic without exposing any rest-duration configuration.
+3. Build the React UI for focus settings, display, and controls while omitting any rest-duration editing controls.
 4. Connect the UI to the timer hook and browser notification helper.
-5. Add focused tests for validation, lifecycle transitions, and repeat behavior.
+5. Add focused tests for focus validation, fixed rest transitions, lifecycle transitions, and repeat behavior.
 6. Run the relevant Vitest suite and fix any regressions before sign-off.
 
 ## Constitution Re-check
@@ -235,7 +238,8 @@ This contract is intentionally lightweight because the app does not expose backe
 After implementation, the design will be validated again against the constitution to confirm:
 
 - Business logic remains separate from UI concerns.
-- The custom duration validation is explicit and safe.
+- The fixed 5-minute rest cycle is enforced system-wide and not exposed as a configurable setting.
+- The custom focus-duration validation is explicit and safe.
 - Features are documented and testable.
 - The solution stays simple and maintainable for a first-version prototype.
 

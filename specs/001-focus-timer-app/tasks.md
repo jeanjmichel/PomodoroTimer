@@ -31,13 +31,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Create the timer type definitions and domain constants in domain/timer/timer.types.ts and domain/timer/timer.constants.ts
-- [ ] T006 Implement Zod-based custom duration validation in domain/timer/timer-validation.ts
-- [ ] T007 [P] Create the state transition and phase rules in domain/timer/timer-rules.ts
-- [ ] T008 [P] Implement the timer service that owns lifecycle transitions, loop behavior, and reset logic in domain/timer/timer-service.ts
+- [ ] T005 Create the timer type definitions and domain constants in domain/timer/timer.types.ts and domain/timer/timer.constants.ts, including the fixed 5-minute rest duration constant
+- [ ] T006 Implement Zod-based validation for custom focus durations in domain/timer/timer-validation.ts while keeping the rest duration fixed at 5 minutes
+- [ ] T007 [P] Create the state transition and phase rules in domain/timer/timer-rules.ts to enforce the fixed rest cycle and loop behavior
+- [ ] T008 [P] Implement the timer service that owns lifecycle transitions, loop behavior, and reset logic in domain/timer/timer-service.ts without exposing any rest-duration configuration
 - [ ] T009 Create the browser notification utility that can play audio and show a fallback visual alert in lib/browser-audio.ts
 - [ ] T010 [P] Add a time-formatting helper in lib/format-time.ts
-- [ ] T011 Create the timer hook that binds timer state to browser timers in hooks/useTimer.ts
+- [ ] T011 Create the timer hook that binds timer state to browser timers in hooks/useTimer.ts and uses the fixed 5-minute rest duration
 - [ ] T012 [P] Create the notification hook for state-change events in hooks/useNotification.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
@@ -46,13 +46,13 @@
 
 ## Phase 3: User Story 1 - Start a focused work session (Priority: P1) 🎯 MVP
 
-**Goal**: Allow the user to choose a preset or custom duration and start a valid focus session with clear countdown feedback.
+**Goal**: Allow the user to choose a preset or custom focus duration and start a valid focus session with clear countdown feedback, while keeping the rest cycle fixed at 5 minutes.
 
-**Independent Test**: A user can select a duration, start the timer, and observe the session count down without additional setup.
+**Independent Test**: A user can select a focus duration, start the timer, and observe the focus session count down without additional setup.
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Add unit tests for valid and invalid custom durations in tests/unit/timer-validation.test.ts
+- [ ] T013 [P] [US1] Add unit tests for valid and invalid custom focus durations in tests/unit/timer-validation.test.ts
 - [ ] T014 [P] [US1] Add unit tests for session start and duration normalization in tests/unit/timer-service.test.ts
 
 ### Implementation for User Story 1
@@ -67,10 +67,10 @@
   - 30 minutes
   - 45 minutes
   - 55 minutes
-  and support custom durations in minutes and seconds.
+  and support custom focus durations in minutes and seconds without exposing any rest-duration control.
 - [ ] T016 [P] [US1] Build the countdown display in components/timer/TimerDisplay.tsx
-- [ ] T017 [US1] Add the main timer dashboard composition in components/timer/TimerDashboard.tsx
-- [ ] T018 [US1] Implement start and configuration behavior in app/page.tsx and/or the timer hook integration
+- [ ] T017 [US1] Add the main timer dashboard composition in components/timer/TimerDashboard.tsx, keeping the rest cycle fixed at 5 minutes
+- [ ] T018 [US1] Implement start and configuration behavior in app/page.tsx and/or the timer hook integration, with no rest-duration editing path
 - [ ] T019 [US1] Add a visible session-state indicator and current phase messaging in components/timer/TimerDashboard.tsx
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
@@ -79,21 +79,21 @@
 
 ## Phase 4: User Story 2 - Move between work and rest periods (Priority: P1)
 
-**Goal**: Transition automatically between focus and rest periods and support loop mode with minimal user interaction.
+**Goal**: Transition automatically between focus and the system-fixed 5-minute rest period and support loop mode with minimal user interaction.
 
-**Independent Test**: A user can complete a focus session and confirm the app moves to rest mode and optionally continues the cycle.
+**Independent Test**: A user can complete a focus session and confirm the app moves to the required 5-minute rest mode and optionally continues the cycle.
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Add unit tests for phase transitions and loop behavior in tests/unit/timer-rules.test.ts
+- [ ] T020 [P] [US2] Add unit tests for phase transitions and loop behavior in tests/unit/timer-rules.test.ts, including the fixed 5-minute rest cycle
 - [ ] T021 [P] [US2] Add a full integration test for focus-to-rest transitions in tests/integration/timer-flow.test.tsx
 
 ### Implementation for User Story 2
 
 - [ ] T022 [US2] Implement phase-shift logic when the timer reaches zero in domain/timer/timer-rules.ts and domain/timer/timer-service.ts, automatically transitioning from focus mode to a fixed 5-minute rest period.
-- [ ] T023 [US2] Add loop-mode support and restart behavior to the timer service in domain/timer/timer-service.ts
-- [ ] T024 [US2] Wire loop-mode controls into the UI in components/timer/TimerControls.tsx
-- [ ] T025 [US2] Show the active phase and cycle state in the dashboard and timer display components
+- [ ] T023 [US2] Add loop-mode support and restart behavior to the timer service in domain/timer/timer-service.ts while keeping the rest duration fixed at 5 minutes
+- [ ] T024 [US2] Remove any rest-duration controls and ensure the UI only exposes focus configuration and loop controls in components/timer/TimerControls.tsx
+- [ ] T025 [US2] Show the active phase and cycle state in the dashboard and timer display components, explicitly reflecting the fixed rest period
 - [ ] T026 [US2] Add a user-friendly notification banner for phase transitions in components/ui/NotificationBanner.tsx
 
 **Checkpoint**: At this point, User Stories 1 and 2 should both work independently.
@@ -102,7 +102,7 @@
 
 ## Phase 5: User Story 3 - Manage timer lifecycle and notifications (Priority: P2)
 
-**Goal**: Allow users to pause, resume, stop, and restart the session while receiving clear visual and audible state-change notifications.
+**Goal**: Allow users to pause, resume, stop, and restart the session while receiving clear visual and audible state-change notifications, while preserving the fixed 5-minute rest cycle.
 
 **Independent Test**: A user can pause, resume, stop, and restart the timer and observe consistent feedback and alerts.
 
@@ -113,11 +113,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement pause, resume, stop, and restart actions in the timer service and hook logic
+- [ ] T029 [US3] Implement pause, resume, stop, and restart actions in the timer service and hook logic, keeping the fixed 5-minute rest cycle intact
 - [ ] T030 [US3] Add timer controls for pause, resume, stop, and restart in components/timer/TimerControls.tsx
-- [ ] T031 [US3] Ensure the timer dashboard reflects the current lifecycle status without hidden side effects
+- [ ] T031 [US3] Ensure the timer dashboard reflects the current lifecycle status without hidden side effects and without rest-duration editing behavior
 - [ ] T032 [US3] Trigger visual and audible notifications for session transitions via the notification hook and browser audio utility
-- [ ] T033 [US3] Add a reset path that clears the current session and prepares for a new cycle cleanly
+- [ ] T033 [US3] Add a reset path that clears the current session and prepares for a new cycle cleanly while restoring the fixed rest period
 
 **Checkpoint**: At this point, User Story 3 should be independently functional and the core feature is ready for verification.
 
@@ -128,10 +128,19 @@
 **Purpose**: Final improvements that affect the entire timer workflow and ensure the app is ready for a simple productivity demo.
 
 - [ ] T034 [P] Review the app for responsive mobile layout and readability in app/page.tsx and app/globals.css
-- [ ] T035 [P] Validate that all timer state transitions align with requirements and are easy to understand in the UI
+- [ ] T035 [P] Validate that all timer state transitions align with requirements and are easy to understand in the UI, especially the fixed 5-minute rest rule
 - [ ] T036 [P] Run the focused Vitest suite covering validation, service logic, and integration flows
 - [ ] T037 [P] Fix any linting or type issues reported by the project toolchain and ensure strict TypeScript compliance
-- [ ] T038 Run the quickstart validation guide and confirm the feature works end-to-end in the browser
+- [ ] T038 Run the quickstart validation guide and confirm the feature works end-to-end in the browser, including the absence of rest-duration controls
+
+---
+
+### Phase 7: Documentation
+
+**Goal**: Record the bug-fix and the final feature behavior for future maintenance.
+
+- [ ] T039 Update CHANGELOG.md describing the fixed 5-minute rest cycle and the removal of rest-duration controls.
+- [ ] T040 Update README.md describing the implemented focus timer behavior and the fixed rest rule.
 
 ---
 
@@ -172,9 +181,9 @@
 ## Parallel Example: User Story 1
 
 ```bash
-Task: "Add unit tests for valid and invalid custom durations in tests/unit/timer-validation.test.ts"
+Task: "Add unit tests for valid and invalid custom focus durations in tests/unit/timer-validation.test.ts"
 Task: "Add unit tests for session start and duration normalization in tests/unit/timer-service.test.ts"
-Task: "Build the timer settings form and preset duration controls in components/timer/TimerSettingsForm.tsx"
+Task: "Build the timer settings form and preset focus controls in components/timer/TimerSettingsForm.tsx without rest-duration inputs"
 Task: "Build the countdown display in components/timer/TimerDisplay.tsx"
 ```
 
@@ -187,14 +196,14 @@ Task: "Build the countdown display in components/timer/TimerDisplay.tsx"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Confirm the timer can be configured and started successfully
+4. **STOP and VALIDATE**: Confirm the timer can be configured and started successfully with the fixed 5-minute rest period
 5. Add User Story 2 and User Story 3 only after the MVP is stable
 
 ### Incremental Delivery
 
 1. Setup + Foundational provide the timer engine and validation primitives
-2. Story 1 delivers the core timer workflow and verifies the MVP
-3. Story 2 adds automatic cycle transitions and loop mode
+2. Story 1 delivers the core focus timer workflow and verifies the MVP
+3. Story 2 adds automatic focus-to-rest transitions and loop mode with the fixed rest cycle
 4. Story 3 completes lifecycle controls and notification behavior
 5. Final polish validates responsiveness and end-to-end behavior
 
@@ -207,3 +216,4 @@ Task: "Build the countdown display in components/timer/TimerDisplay.tsx"
 - Every story should be independently testable and deployable as a functional increment
 - All tasks include exact file paths for implementation and validation work
 - The timer domain remains explicit and testable, with the UI kept thin and presentation-focused
+- The rest period is a fixed 5-minute system rule and must not be exposed as a user-editable configuration

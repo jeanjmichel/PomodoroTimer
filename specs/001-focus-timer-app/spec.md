@@ -35,8 +35,9 @@ As a user following a structured rhythm, I want the system to automatically tran
 
 **Acceptance Scenarios**:
 
-1. **Given** a focus session is active, **When** the timer reaches zero, **Then** the app transitions to the rest state and notifies the user.
+1. **Given** a focus session is active, **When** the timer reaches zero, **Then** the app transitions to a fixed 5-minute rest state and notifies the user.
 2. **Given** the auto-repeat setting is enabled, **When** the rest period ends, **Then** the app starts the next focus cycle without additional user input.
+3. **Given** the user is configuring the session, **When** they try to modify the rest duration, **Then** no rest-duration control is presented and the system keeps the rest period fixed at 5 minutes.
 
 ---
 
@@ -78,6 +79,12 @@ As a user working across devices and interruptions, I want to pause, resume, sto
 
 - When loop mode is enabled, work and rest cycles continue indefinitely until the user manually stops the timer.
 
+#### Fixed Rest Duration Enforcement
+
+- The rest duration is fixed at 5 minutes for every transition and cannot be changed by the user.
+- No UI control, form field, or configuration option may expose or modify the rest duration.
+- Any attempt to configure the rest duration is treated as a bug and must be removed from the interface.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -93,7 +100,7 @@ As a user working across devices and interruptions, I want to pause, resume, sto
   - 45 minutes
   - 55 minutes
 - **FR-002**: Users MUST be able to define a custom focus duration when the predefined options do not fit their needs.
-- **FR-003**: The application MUST automatically start a fixed 5-minute rest period after each completed focus session.
+- **FR-003**: The application MUST automatically start a fixed 5-minute rest period after each completed focus session and MUST NOT allow the user to change that duration.
 - **FR-004**: Users MUST be able to start a countdown for the selected focus session.
 - **FR-005**: The application MUST display the current timer state clearly, including remaining time and whether the system is in focus or rest mode.
 - **FR-006**: Users MUST be able to pause, resume, stop, and restart the timer at any time.
@@ -104,11 +111,11 @@ As a user working across devices and interruptions, I want to pause, resume, sto
 - **FR-011**: The interface MUST minimize required interaction once the timer is configured and running.
 - **FR-012**: The application MUST clearly communicate the status of the current timer state before, during, and after transitions.
 - **FR-013**: The audible notification used for focus-session completion MUST be different from the notification used for rest-period completion.
-- **FR-014**: Users MUST be able to configure custom durations using minutes and seconds.
+- **FR-014**: Users MUST be able to configure custom focus durations using minutes and seconds, while the rest duration remains fixed at 5 minutes and is not user-configurable.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Session Settings**: The selected configuration for the timer, including focus duration, rest duration, and whether the cycle repeats automatically.
+- **Session Settings**: The selected configuration for the timer, including the focus duration and whether the cycle repeats automatically; the rest duration is fixed by the system at 5 minutes.
 - **Timer State**: The current lifecycle status of the countdown, such as idle, running, paused, stopped, or completed.
 - **Cycle Phase**: The current segment of the session, either focus or rest.
 - **Notification Event**: A state transition that triggers a visual or audible signal to the user.
@@ -131,3 +138,4 @@ As a user working across devices and interruptions, I want to pause, resume, sto
 - The product is intended for single-user use within a browser session rather than multi-user collaboration.
 - The app will use browser notification capabilities and local audio playback when the user has granted access to the device experience.
 - If a device cannot play audio, the app will still provide a visual transition notification.
+- The rest period is a fixed 5-minute system rule and is not intended to be user-configurable in the interface or settings model.
