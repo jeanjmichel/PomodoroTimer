@@ -1,0 +1,9 @@
+export const DEFAULT_FOCUS_MINUTES = 25;
+export const DEFAULT_REST_MINUTES = 5;
+export const FIXED_REST_DURATION_SECONDS = DEFAULT_REST_MINUTES * 60;
+export const PRESET_FOCUS_SECONDS = [180, 300, 600, 900, 1200, 1500, 1800, 2700, 3300];
+export const MIN_CUSTOM_SECONDS = 60;
+export const MAX_CUSTOM_SECONDS = 7140;
+export const DEFAULT_AUTO_REPEAT = true;
+export const FOCUS_PHASE_LABEL = 'Focus';
+export const REST_PHASE_LABEL = 'Rest';
